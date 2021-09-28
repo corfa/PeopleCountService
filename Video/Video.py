@@ -22,9 +22,6 @@ class Video:
         self.db_id = db_id
 
     def useEveryFrame(self, frame_number, output_array, output_count):
-        print("########")
-        print("WORK!!!")
-        print("&&&&&&&&&&")
         status = GetStatus(self.db_id)
         if status == "cancel":
             raise StatusCancelException

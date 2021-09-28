@@ -1,13 +1,12 @@
 import os
 
-from cv2 import FileStorage
 from dotenv import load_dotenv
-from werkzeug.datastructures import ImmutableMultiDict
+
 from Sqlite.initDB import InitRepository
 from Sqlite.query_for_service import GetDataForReport, addVideo
 from Sqlite.query_for_video import updateStatusVideo
 from helper.createResponseReport import createReport
-from helper.saveFile import saveFile
+from helper.saveFile import saveFileForForm, saveFileForBinary
 
 from flask import Flask, request
 from flask_restx import Resource, Api
@@ -15,10 +14,10 @@ from flask_restx import Resource, Api
 # выполнить если нету базы данных
 #InitRepository()
 
-print("appService started!")
 app = Flask(__name__)
 api = Api(app)
 load_dotenv()
+
 
 class GetVideo(Resource):
     def get(self):
@@ -29,24 +28,27 @@ class GetVideo(Resource):
         except Exception as e:
             return {"error": str(e)}, 501
 
-#it is test endpoint
-class TestPost(Resource):
-    def post(self):
-        print("done!!!!")
-        file = request.data
-        f = open('myVideo.mp4', 'wb')
-        f.write(file)
-        f.close()
-        print(type(file))
-#it is test endpoint
 
-class PostVideo(Resource):
+class BodyVideo(Resource):
     def post(self):
-        file = request.files.get("")
+        file = request.data
         if file is None:
             return {"error": "not valid data"}, 400
         try:
-            path_file = saveFile(file)
+            path_file = saveFileForBinary(file)
+            id_video = addVideo(path_file, "loaded")
+            return {"id": id_video}
+        except Exception as e:
+            return {"error": str(e)}, 501
+
+
+class PostVideo(Resource):
+    def post(self):
+        file = request.files.get("video")
+        if file is None:
+            return {"error": "not valid data"}, 400
+        try:
+            path_file = saveFileForForm(file)
             id_video = addVideo(path_file, "loaded")
             return {"id": id_video}
         except Exception as e:
@@ -65,8 +67,7 @@ class CancelVideo(Resource):
 api.add_resource(CancelVideo, "/processing/video/<int:video_id>/cancel")
 api.add_resource(GetVideo, "/processing/video/")
 api.add_resource(PostVideo, "/processing/video")
-#test
-api.add_resource(TestPost, "/processing/test")
-#test
+api.add_resource(BodyVideo, "/processing/body")
+
 if __name__ == '__main__':
     app.run(host="localhost", port=int(os.getenv('PORT', 8000)), debug=True)

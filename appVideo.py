@@ -10,7 +10,6 @@ from Video.detectVideo import detectVideo
 from helper.checkEnginModel import check_engin_model
 from model.VideoModel import VideoModel
 
-print("appVideo started!")
 load_dotenv()
 check_engin_model()
 model = VideoModel(os.getenv('PATH_ENGINEMODEL', 'engineModel/yolo.h5'))
