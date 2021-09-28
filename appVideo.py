@@ -19,7 +19,6 @@ detect = model.getDetect()
 while True:
     mass_video = getData()
     if len(mass_video) != 0:
-        print(mass_video)
         if threading.active_count() < number_of_threads:
             videoThread = Thread(target=detectVideo, args=(detect, mass_video[0][1], mass_video[0][0]))
             videoThread.start()
