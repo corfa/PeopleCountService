@@ -1,0 +1,2 @@
+class StatusCancelException(Exception):
+    pass
